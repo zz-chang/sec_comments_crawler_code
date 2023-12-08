@@ -6,6 +6,35 @@ import random
 import os
 
 
+
+class NotFoundList():
+    def __init__(self):
+        self.not_found_list = []
+        self.not_found_list_path = './sec_comments_file/not_found_list.csv'
+
+    def read_not_found_list(self):
+        if os.path.exists(self.not_found_list_path):
+            self.not_found_list = pd.read_csv(self.not_found_list_path, header=None)[0].tolist()
+        else:
+            self.not_found_list = []
+
+    def write_not_found_list(self):
+        not_found_list_df = pd.DataFrame(self.not_found_list)
+        not_found_list_df.to_csv(self.not_found_list_path, index=False, header=False)
+
+    def add_not_found_list(self, url):
+        self.not_found_list.append(url)
+
+    def remove_not_found_list(self, url):
+        self.not_found_list.remove(url)
+
+    def is_in_not_found_list(self, url):
+        if url in self.not_found_list:
+            return True
+        else:
+            return False
+
+
 def save_from_url(url, headers):
     destination = url.split('/')[-1]
     save_path = f'../sec_comments_file/{destination}'
@@ -13,12 +42,13 @@ def save_from_url(url, headers):
     if os.path.exists(save_path):
         return 0
     else:
-        response = requests.get(url=url, headers=headers, stream=False)
+        response = requests.get(url=url, headers=headers, stream=True)
         # 判断是否下载成功
         if response.status_code == 200:
             with open(save_path, 'wb') as pdf_file:
-                pdf_file.write(response.content)
-            return 1
+                for chunk in response.iter_content(chunk_size=1024):
+                    pdf_file.write(chunk)
+            return 0
         else:
             raise Exception(f'Error: {response.status_code} - {url}')
         
@@ -36,17 +66,27 @@ if __name__ == '__main__':
 
     # load data
     df = pd.read_csv('../comment_info_all.csv')
+    # load not found list
+    not_found_list = NotFoundList()
+    not_found_list.read_not_found_list()
     # iterate over rows
     with tqdm(total=df.shape[0]) as pbar:
         for index, row in df.iterrows():
+            not_found_count = 0
             url = df.loc[index, 'pdf_url']
-            if not pd.isna(url):
+            # 判断是否在not found list中
+            if not pd.isna(url) and not not_found_list.is_in_not_found_list(url):
                 while True:
                     try:
                         res = save_from_url(url, custom_headers)
                         break
                     except Exception as e:
                         print(e)
+                        not_found_count += 1
+                        if not_found_count > 2:
+                            not_found_list.add_not_found_list(url)
+                            not_found_list.write_not_found_list()
+                            break
                         time.sleep(random.random() * 100 + 100)
                         continue
                 if res:
