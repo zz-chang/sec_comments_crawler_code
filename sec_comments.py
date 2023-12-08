@@ -39,8 +39,8 @@ if __name__ == '__main__':
     # iterate over rows
     with tqdm(total=df.shape[0]) as pbar:
         for index, row in df.iterrows():
-            if not pd.isna(df.loc[0, 'pdf_url']):
-                url = df.loc[0, 'pdf_url']
+            url = df.loc[index, 'pdf_url']
+            if not pd.isna(url):
                 while True:
                     try:
                         res = save_from_url(url, custom_headers)
@@ -50,6 +50,6 @@ if __name__ == '__main__':
                         time.sleep(random.random() * 100 + 100)
                         continue
                 if res:
-                    time.sleep(random.random() * 5 + 5)
+                    time.sleep(random.random() * 2 + 1)
             pbar.update(1)
             
