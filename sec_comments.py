@@ -18,7 +18,7 @@ def save_from_url(url, headers):
         if response.status_code == 200:
             with open(save_path, 'wb') as pdf_file:
                 pdf_file.write(response.content)
-            return 0
+            return 1
         else:
             raise Exception(f'Error: {response.status_code} - {url}')
         
@@ -43,11 +43,13 @@ if __name__ == '__main__':
                 url = df.loc[0, 'pdf_url']
                 while True:
                     try:
-                        save_from_url(url, custom_headers)
+                        res = save_from_url(url, custom_headers)
                         break
                     except Exception as e:
                         print(e)
                         time.sleep(random.random() * 100 + 100)
                         continue
+                if res:
+                    time.sleep(random.random() * 5 + 5)
             pbar.update(1)
-            time.sleep(random.random() * 5 + 5)
+            
