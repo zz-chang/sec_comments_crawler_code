@@ -39,7 +39,8 @@ class NotFoundList():
 
 def save_from_url(url, headers):
     destination = url.split('/')[-1]
-    save_path = f'../sec_comments_file/{destination}'
+    # 设置保存路径
+    save_path = f'../sec_typical_letter_file/{destination}'
     # 判断文件是否存在
     if os.path.exists(save_path):
         return 0
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     }
 
     # load data
-    df = pd.read_csv('../comment_info_all.csv')
+    df = pd.read_csv('../type_letter_urls_final.csv', header=None)
     # load not found list
     not_found_list = NotFoundList()
     not_found_list.read_not_found_list()
@@ -76,7 +77,8 @@ if __name__ == '__main__':
     with tqdm(total=df.shape[0]) as pbar:
         for index, row in df.iterrows():
             not_found_count = 0
-            url = df.loc[index, 'pdf_url']
+            url = df.loc[index, 3]
+            # url = df.loc[index, 'pdf_url']
             # 判断是否在not found list中
             if not pd.isna(url) and not not_found_list.is_in_not_found_list(url):
                 while True:
