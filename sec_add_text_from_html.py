@@ -29,17 +29,18 @@ class Html2Txt():
 if __name__ == '__main__':
     # file_origin_path = '../sec_typical_letter_file/'
     file_origin_path = '../sec_single_letter_file/'
-    for file in tqdm(os.listdir(file_origin_path)):
-        if file.endswith('.htm'):
-            # 设置file的路径
-            html_file_path = os.path.join(file_origin_path, file)
-            text_file_path = os.path.join(file_origin_path, file.replace('.htm', '.txt'))
-            # 创建Html2Txt类的实例对象
-            if not os.path.exists(text_file_path):
-                file = Html2Txt(html_file_path, text_file_path)
-                # 写入txt文件
-                try:
-                    file.write_txt_file()
-                except:
-                    print(f'Error: {html_file_path}')
-                    break
+    file_list = [i for i in os.listdir(file_origin_path) if i.endswith('.htm')]
+    for file in tqdm(file_list):
+        # 设置file的路径
+        html_file_path = os.path.join(file_origin_path, file)
+        text_file_path = os.path.join(file_origin_path, file.replace('.htm', '.txt'))
+        # 创建Html2Txt类的实例对象
+        if not os.path.exists(text_file_path):
+            file = Html2Txt(html_file_path, text_file_path)
+            # 写入txt文件
+            try:
+                file.write_txt_file()
+            except Exception as e:
+                print(e)
+                print(f'Error: {html_file_path}')
+                continue

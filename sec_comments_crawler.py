@@ -41,6 +41,7 @@ def save_from_url(url, headers):
     destination = url.split('/')[-1]
     # 设置保存路径
     save_path = f'../sec_typical_letter_file/{destination}'
+    # save_path = f'../sec_single_letter_file/{destination}'
     # 判断文件是否存在
     if os.path.exists(save_path):
         return 0
@@ -70,6 +71,7 @@ if __name__ == '__main__':
 
     # load data
     df = pd.read_csv('../type_letter_urls_final.csv', header=None)
+    # df = pd.read_csv('../comment_info_all.csv')
     # load not found list
     not_found_list = NotFoundList()
     not_found_list.read_not_found_list()
